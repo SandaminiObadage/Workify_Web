@@ -19,6 +19,12 @@ import com.jobportal.exception.JobPortalException;
 import com.jobportal.repository.JobRepository;
 import com.jobportal.utility.Utilities;
 
+import com.jobportal.dto.ProfileDTO;
+import org.springframework.web.client.RestTemplate;
+import java.util.Map;
+import java.util.HashMap;
+import org.springframework.http.ResponseEntity;
+
 @Service("jobService")
 public class JobServiceImpl implements JobService {
 
@@ -80,6 +86,54 @@ public class JobServiceImpl implements JobService {
 	public List<JobDTO> getJobsPostedBy(Long id) throws JobPortalException {
 		return jobRepository.findByPostedBy(id).stream().map((x) -> x.toDTO()).toList();
 	}
+
+// ...existing code...
+@Autowired
+private ProfileService profileService;
+
+// @Override
+// public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
+//     ProfileDTO profile = profileService.getProfile(profileId);
+//     List<Job> allJobs = jobRepository.findAll();
+//     // Simple matching: score jobs by matching skills and category
+//     return allJobs.stream()
+//         .map(job -> {
+//             int score = 0;
+//             if (job.getSkillsRequired() != null && profile.getSkills() != null) {
+//                 score += (int) job.getSkillsRequired().stream()
+//                     .filter(skill -> profile.getSkills().contains(skill))
+//                     .count();
+//             }
+//             if (job.getJobType() != null && profile.getJobType() != null &&
+//                 job.getJobType().equalsIgnoreCase(profile.getJobType())) {
+//                 score += 2;
+//             }
+//             // Add more scoring logic as needed
+//             JobDTO dto = job.toDTO();
+//             dto.setScore(score); // Add a score field to JobDTO if needed
+//             return dto;
+//         })
+//         .sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
+//         .limit(10)
+//         .toList();
+// }
+@Override
+public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
+    ProfileDTO profile = profileService.getProfile(profileId);
+    // Call Python microservice
+    RestTemplate restTemplate = new RestTemplate();
+    String url = "http://localhost:5001/recommend";
+    Map<String, Object> request = new HashMap<>();
+    request.put("profile", profile);
+    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+    List<Integer> jobIds = (List<Integer>) response.getBody().get("job_ids");
+    // Convert List<Integer> to List<Long>
+    List<Long> jobIdsLong = jobIds.stream().map(Integer::longValue).toList();
+    List<JobDTO> jobs = jobRepository.findAllById(jobIdsLong).stream().map(Job::toDTO).toList();
+    return jobs;
+}
+// ...existing code...
+
 
 
 	@Override

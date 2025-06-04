@@ -40,4 +40,10 @@ public class ProfileAPI {
 		return new ResponseEntity<>(profileService.updateProfile(profileDTO), HttpStatus.OK);
 	}
 	
+	// ...existing code...
+@GetMapping("/export/profiles")
+public ResponseEntity<List<ProfileDTO>> exportProfiles() throws JobPortalException {
+    return new ResponseEntity<>(profileService.getAllProfiles(), HttpStatus.OK);
+}
+// ...existing code...
 }

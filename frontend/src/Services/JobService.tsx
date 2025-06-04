@@ -35,4 +35,6 @@ const changeAppStatus=async (interview:any)=>{
     .then((result:any) => result.data)
     .catch((error:any) =>{throw error;});
 }
-export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus};
+const getRecommendedJobs = (profileId: number) =>
+  fetch(`/jobs/recommend/${profileId}`).then(res => res.json());
+export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus, getRecommendedJobs};

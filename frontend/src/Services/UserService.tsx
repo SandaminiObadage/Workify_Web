@@ -29,4 +29,5 @@ const resetPassword=async (email:string, password:string)=>{
         .catch((error:any) =>{throw error;});
 }
 
+
 export {registerUser, loginUser, sendOtp, verifyOtp, resetPassword};

@@ -80,7 +80,19 @@ public class JobAPI {
 		jobService.changeAppStatus(application);
 		return new ResponseEntity<>(new ResponseDTO("Status Chhanged Successfully"), HttpStatus.OK);
 	}
-	
+
+	// ...existing code...
+@GetMapping("/recommend/{profileId}")
+public ResponseEntity<List<JobDTO>> recommendJobs(@PathVariable Long profileId) throws JobPortalException {
+    return new ResponseEntity<>(jobService.recommendJobs(profileId), HttpStatus.OK);
+}
+// ...existing code...
+// ...existing code...
+@GetMapping("/export/jobs")
+public ResponseEntity<List<JobDTO>> exportJobs() throws JobPortalException {
+    return new ResponseEntity<>(jobService.getAllJobs(), HttpStatus.OK);
+}
+// ...existing code...	
 	
 	
 }
