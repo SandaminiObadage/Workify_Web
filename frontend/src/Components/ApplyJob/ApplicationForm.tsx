@@ -50,7 +50,7 @@ const ApplicationForm = () => {
             name: isNotEmpty('Name cannot be empty'),
             email: isNotEmpty('Email cannot be empty'),
             phone: isNotEmpty('Phone cannot be empty'),
-            website: isNotEmpty('Website cannot be empty'),
+
             resume: isNotEmpty('Resume cannot be empty'),
         }
     })
@@ -62,7 +62,7 @@ const ApplicationForm = () => {
             </div>
             <div className="flex gap-10 md-mx:gap-5 [&>*]:w-1/2 sm-mx:[&>*]:!w-full sm-mx:flex-wrap ">
                 <NumberInput {...form.getInputProps("phone")} variant={preview ? "unstyled" : "default"} readOnly={preview} className={`${preview ? "text-mine-shaft-300 font-semibold" : ""}`} clampBehavior="strict" min={0} max={9999999999} label="Phone Number" withAsterisk placeholder="Enter  phone" hideControls />
-                <TextInput {...form.getInputProps("website")} variant={preview ? "unstyled" : "default"} readOnly={preview} className={`${preview ? "text-mine-shaft-300 font-semibold" : ""}`} label="Personal Website" withAsterisk placeholder="Enter url" />
+                <TextInput {...form.getInputProps("website")} variant={preview ? "unstyled" : "default"} readOnly={preview} className={`${preview ? "text-mine-shaft-300 font-semibold" : ""}`} label="Personal Website" placeholder="Enter url" />
             </div>
             <FileInput {...form.getInputProps("resume")} variant={preview ? "unstyled" : "default"} readOnly={preview} className={`${preview ? "text-mine-shaft-300 font-semibold" : ""}`} withAsterisk leftSection={<IconPaperclip stroke={1.5} />} accept="application/pdf" label="Resume/CV" placeholder="Attach Resume/CV" leftSectionPointerEvents="none" />
             <Textarea {...form.getInputProps("coverLetter")} variant={preview ? "unstyled" : "default"} readOnly={preview} className={`${preview ? "text-mine-shaft-300 font-semibold" : ""}`} placeholder="Type something about yourself" label="Cover Letter" autosize minRows={4} />

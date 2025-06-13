@@ -41,10 +41,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
 import joblib
+from pymongo import MongoClient
+
+db_password = '200060301680H'
+client = MongoClient(f"mongodb+srv://hashiniobadage6030:{db_password}@cluster0.q1wp8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+
+db = client['jobportal']
+jobs_collection = db['jobs']
+profiles_collection = db['profiles']
 
 # Load data
-jobs = pd.read_json('jobs.json')
-profiles = pd.read_json('profiles.json')
+jobs = pd.DataFrame(list(jobs_collection.find()))
+profiles = pd.DataFrame(list(profiles_collection.find()))
+
 
 # Extract title from first experience in profiles
 def extract_profile_title(experiences):
@@ -72,8 +81,29 @@ profiles['text'] = (
     profiles['about']
 )
 
-jobs['about'] = jobs['about'].fillna('')
-profiles['about'] = profiles['about'].fillna('')
+def clean_skills(skills):
+    result = []
+    for s in skills:
+        if isinstance(s, str):
+            result.extend([x.strip() for x in s.replace('\n', ',').split(',') if x.strip()])
+    return result
+
+jobs['text'] = (
+    jobs['jobTitle'] + ' ' +
+    jobs['jobType'] + ' ' +
+    jobs['location'] + ' ' +
+    jobs['skillsRequired'].apply(clean_skills).apply(lambda x: ' '.join(x)) + ' ' +
+    jobs['about']
+)
+
+profiles['text'] = (
+    profiles['title'] + ' ' +
+    profiles['skills'].apply(clean_skills).apply(lambda x: ' '.join(x)) + ' ' +
+    profiles['about']
+)
+
+jobs['text'] = jobs['text'].fillna('')
+profiles['text'] = profiles['text'].fillna('')
 
 # Fit vectorizer on all text
 vectorizer = TfidfVectorizer()
@@ -103,10 +133,11 @@ for idx, profile_row in profiles.iterrows():
     recommendations[profile_id] = job_ids_list
 
 # Save recommendations or expose as a service
-with open('recommendations.json', 'w') as f:
+with open('recommendations1.json', 'w') as f:
     json.dump(recommendations, f)
 
 # Save vectorizer, job vectors, and job IDs for use in the Flask API
 joblib.dump(vectorizer, 'vectorizer.pkl')
 joblib.dump(job_vecs, 'job_vecs.pkl')
 joblib.dump(jobs['_id'].tolist(), 'job_ids.pkl')
+

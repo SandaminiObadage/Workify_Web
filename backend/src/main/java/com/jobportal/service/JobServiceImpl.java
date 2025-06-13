@@ -24,6 +24,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.HashMap;
 import org.springframework.http.ResponseEntity;
+import com.jobportal.dto.Experience;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service("jobService")
 public class JobServiceImpl implements JobService {
@@ -32,6 +35,8 @@ public class JobServiceImpl implements JobService {
 	private JobRepository jobRepository;
 	@Autowired
 	private NotificationService notificationService;
+
+	private static final Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
 
 	@Override
 	public JobDTO postJob(JobDTO jobDTO) throws JobPortalException {
@@ -91,49 +96,101 @@ public class JobServiceImpl implements JobService {
 @Autowired
 private ProfileService profileService;
 
+
 // @Override
 // public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
 //     ProfileDTO profile = profileService.getProfile(profileId);
-//     List<Job> allJobs = jobRepository.findAll();
-//     // Simple matching: score jobs by matching skills and category
-//     return allJobs.stream()
-//         .map(job -> {
-//             int score = 0;
-//             if (job.getSkillsRequired() != null && profile.getSkills() != null) {
-//                 score += (int) job.getSkillsRequired().stream()
-//                     .filter(skill -> profile.getSkills().contains(skill))
-//                     .count();
-//             }
-//             if (job.getJobType() != null && profile.getJobType() != null &&
-//                 job.getJobType().equalsIgnoreCase(profile.getJobType())) {
-//                 score += 2;
-//             }
-//             // Add more scoring logic as needed
-//             JobDTO dto = job.toDTO();
-//             dto.setScore(score); // Add a score field to JobDTO if needed
-//             return dto;
-//         })
-//         .sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
-//         .limit(10)
-//         .toList();
+//     RestTemplate restTemplate = new RestTemplate();
+//     String url = "http://localhost:5001/recommend";
+//     Map<String, Object> request = new HashMap<>();
+//     request.put("profile", profile);
+//     ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+//     List<Integer> jobIds = (List<Integer>) response.getBody().get("job_ids");
+//     List<Long> jobIdsLong = jobIds.stream().map(Integer::longValue).toList();
+//     List<JobDTO> jobs = jobRepository.findAllById(jobIdsLong).stream().map(Job::toDTO).toList();
+//     return jobs;
 // }
+// @Override
+// public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
+//     ProfileDTO profile = profileService.getProfile(profileId);
+
+//     // Prepare experiences as a list of maps (with at least the "title" field)
+//     List<Map<String, Object>> experiences = new ArrayList<>();
+//     if (profile.getExperiences() != null) {
+//         for (Experience exp : profile.getExperiences()) {
+//             Map<String, Object> expMap = new HashMap<>();
+//             expMap.put("title", exp.getTitle());
+//             // Add other fields if needed
+//             experiences.add(expMap);
+//         }
+//     }
+
+//     // Build the request map with only the fields your ML API expects
+//     Map<String, Object> request = new HashMap<>();
+//     request.put("skills", profile.getSkills());
+//     request.put("about", profile.getAbout());
+//     request.put("experiences", experiences);
+
+//     RestTemplate restTemplate = new RestTemplate();
+//     String url = "http://127.0.0.1:5001/recommend";
+//     ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+
+//     List<Integer> jobIds = (List<Integer>) response.getBody().get("job_ids");
+//     List<Long> jobIdsLong = jobIds.stream().map(Integer::longValue).toList();
+//     List<JobDTO> jobs = jobRepository.findAllById(jobIdsLong).stream().map(Job::toDTO).toList();
+//     return jobs;
+// }
+
 @Override
 public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
     ProfileDTO profile = profileService.getProfile(profileId);
-    // Call Python microservice
-    RestTemplate restTemplate = new RestTemplate();
-    String url = "http://localhost:5001/recommend";
-    Map<String, Object> request = new HashMap<>();
-    request.put("profile", profile);
-    ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-    List<Integer> jobIds = (List<Integer>) response.getBody().get("job_ids");
-    // Convert List<Integer> to List<Long>
-    List<Long> jobIdsLong = jobIds.stream().map(Integer::longValue).toList();
-    List<JobDTO> jobs = jobRepository.findAllById(jobIdsLong).stream().map(Job::toDTO).toList();
-    return jobs;
-}
-// ...existing code...
 
+    List<Map<String, Object>> experiences = new ArrayList<>();
+    if (profile.getExperiences() != null) {
+        for (Experience exp : profile.getExperiences()) {
+            Map<String, Object> expMap = new HashMap<>();
+            expMap.put("title", exp.getTitle());
+            experiences.add(expMap);
+        }
+    }
+
+    Map<String, Object> request = new HashMap<>();
+    request.put("skills", profile.getSkills());
+    request.put("about", profile.getAbout());
+    request.put("experiences", experiences);
+
+	logger.info("Preparing recommendation request for profileId {}", profileId);
+	logger.info("Request body: {}", request);
+
+    RestTemplate restTemplate = new RestTemplate();
+    String url = "http://127.0.0.1:5001/recommend";
+
+    try {
+		logger.info("Sending recommendation request for profileId {}", profileId);
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+		logger.info("Received response for profileId {}: {}", profileId, response.getBody());
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            List<Integer> jobIds = (List<Integer>) response.getBody().get("job_ids");
+            List<Long> jobIdsLong = jobIds.stream().map(Integer::longValue).toList();
+			logger.info("Job IDs recommended: {}", jobIdsLong);
+			List<JobDTO> jobDTOList = jobRepository.findAllById(jobIdsLong)
+					.stream()
+					.map(Job::toDTO)
+					.toList();
+
+// You can log or process it if needed
+			logger.info("Recommended jobs found: {}", jobDTOList.size());
+
+			return jobDTOList;
+//            return jobRepository.findAllById(jobIdsLong).stream().map(Job::toDTO).toList();
+        } else {
+            throw new JobPortalException("ML_SERVICE_ERROR");
+        }
+    } catch (Exception e) {
+		logger.error("Error in recommendJobs: ", e);
+        throw new JobPortalException("Failed to get recommended jobs: " + e.getMessage());
+    }
+}
 
 
 	@Override
