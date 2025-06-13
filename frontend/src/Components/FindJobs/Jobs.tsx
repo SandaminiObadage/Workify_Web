@@ -52,7 +52,7 @@ const Jobs = () => {
     },[filter,jobList])
     return <div className="px-5 py-5">
         <div className="flex justify-between flex-wrap mt-5">
-            <div className="text-2xl xs-mx:text-xl flex gap-3 items-center font-semibold">Recommended jobs   {Object.keys(filter).length>0&&<Button onClick={()=>dispatch(resetFilter())} className="font-body transition duration-300 " size="compact-sm" leftSection={<IconX stroke={1.5} size={20}/>} variant="filled" color="brightSun.4" autoContrast >Clear Filters</Button>}</div>
+            <div className="text-2xl xs-mx:text-xl flex gap-3 items-center font-semibold">Explore Job Categories   {Object.keys(filter).length>0&&<Button onClick={()=>dispatch(resetFilter())} className="font-body transition duration-300 " size="compact-sm" leftSection={<IconX stroke={1.5} size={20}/>} variant="filled" color="brightSun.4" autoContrast >Clear Filters</Button>}</div>
             <Sort sort="job" />
         </div>
         <div className="flex mt-10 flex-wrap gap-5">

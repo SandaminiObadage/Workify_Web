@@ -25,6 +25,9 @@ public interface JobService {
 	public List<JobDTO> getJobsPostedBy(Long id) throws JobPortalException;
 
 	public void changeAppStatus(Application application) throws JobPortalException;
+	// ...existing code...
+public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException;
+// ...existing code...
 	
 	
 

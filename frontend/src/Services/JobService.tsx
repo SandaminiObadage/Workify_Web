@@ -35,4 +35,16 @@ const changeAppStatus=async (interview:any)=>{
     .then((result:any) => result.data)
     .catch((error:any) =>{throw error;});
 }
-export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus};
+// const getRecommendedJobs = (profileId: number) =>
+//   axiosInstance.get(`/jobs/recommend/${profileId}`).then(res => res.data);
+// ...existing code...
+
+const getRecommendedJobs = (profileId: number) =>
+  axiosInstance
+    .get(`/jobs/recommend/${profileId}`)
+    .then(res => res.data)
+    .catch(error => { throw error; });
+
+// ...existing code...
+
+export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus, getRecommendedJobs};
