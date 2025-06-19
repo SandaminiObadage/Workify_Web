@@ -17,6 +17,7 @@ import com.jobportal.dto.ResponseDTO;
 import com.jobportal.entity.Notification;
 import com.jobportal.exception.JobPortalException;
 import com.jobportal.service.NotificationService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @CrossOrigin

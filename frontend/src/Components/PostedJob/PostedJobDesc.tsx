@@ -2,16 +2,40 @@ import { Badge, Divider, Tabs } from "@mantine/core";
 import Job from "../JobDesc/Job";
 import TalentCard from "../FindTalent/TalentCard";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const PostedJobDesc = (props:any) => {
     const [tab, setTab]=useState("overview");
     const [arr, setArr]=useState<any>([]);
-    const handleTab=(value:any)=>{
+
+        // Helper to fetch full profile for each applicant
+    const fetchProfiles = async (applicants: any[]) => {
+        if (!applicants || applicants.length === 0) return [];
+        // Fetch all profiles in parallel
+        const results = await Promise.all(applicants.map(async (applicant) => {
+            try {
+                // Replace with your actual profile API endpoint
+                const res = await axios.get(`/profiles/get/${applicant.applicantId}`);
+                return { ...res.data, ...applicant }; // Merge profile and applicant info
+            } catch {
+                return applicant; // fallback to applicant info if fetch fails
+            }
+        }));
+        return results;
+    };
+    const handleTab = async (value: any) => {
         setTab(value);
-        if(value=="applicants")setArr(props.applicants?.filter((x:any)=>x.applicationStatus=="APPLIED"));
-        else if(value=="invited")setArr(props.applicants?.filter((x:any)=>x.applicationStatus=="INTERVIEWING"));
-        else if(value=="offered")setArr(props.applicants?.filter((x:any)=>x.applicationStatus=="OFFERED"));
-        else if(value=="rejected")setArr(props.applicants?.filter((x:any)=>x.applicationStatus=="REJECTED"));
+        let filtered = [];
+        if (value == "applicants") filtered = props.applicants?.filter((x: any) => x.applicationStatus == "APPLIED");
+        else if (value == "invited") filtered = props.applicants?.filter((x: any) => x.applicationStatus == "INTERVIEWING");
+        else if (value == "offered") filtered = props.applicants?.filter((x: any) => x.applicationStatus == "OFFERED");
+        else if (value == "rejected") filtered = props.applicants?.filter((x: any) => x.applicationStatus == "REJECTED");
+        if (["applicants", "invited", "offered", "rejected"].includes(value)) {
+            const merged = await fetchProfiles(filtered);
+            setArr(merged);
+        } else {
+            setArr([]);
+        }
     }
     useEffect(()=>{
         handleTab("overview");

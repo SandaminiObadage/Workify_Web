@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @CrossOrigin
@@ -54,4 +55,11 @@ public class UserAPI {
 		userService.verifyOtp(email, otp);
 		return new ResponseEntity<>(new ResponseDTO("OTP has been verified."), HttpStatus.ACCEPTED);
 	}
+
+	// Add this method if missing
+    @GetMapping("/get/{id}")
+public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws JobPortalException {
+    UserDTO user = userService.getUserById(id);
+    return ResponseEntity.ok(user);
+}
 }
