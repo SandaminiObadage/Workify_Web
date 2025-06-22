@@ -47,22 +47,44 @@ const SignUp = () => {
             if(newFormError[key])valid=false;
         }
         setFormError(newFormError);
-        if(valid===true){
-            registerUser(data).then((res) => {
-                setData(form);
-                successNotification("Registered Successfully", "Redirecting to login page...");
+        // if(valid===true){
+        //     registerUser(data).then((res) => {
+        //         setData(form);
+        //         successNotification("Registered Successfully", "Redirecting to login page...");
                 
-                  setTimeout(()=>{
-                    navigate("/login");
-                    setLoading(false);
-                  }, 4000)
-            }).catch((err) => {
-                console.log(err);
-                setLoading(false);
-              errorNotification("Registration Failed", err.response.data.errorMessage);
-        });
+        //           setTimeout(()=>{
+        //             navigate("/login");
+        //             setLoading(false);
+        //           }, 4000)
+        //     }).catch((err) => {
+        //         console.log(err);
+        //         setLoading(false);
+        //       errorNotification("Registration Failed", err.response.data.errorMessage);
+        // });
 
+        // }
+
+        // ...existing code...
+if(valid===true){
+    registerUser(data).then((res) => {
+        // Store profileId in Redux or localStorage
+        if (res.profileId) {
+            // Example: Save to localStorage
+            localStorage.setItem("profileId", res.profileId);
+
+            // Or, if you have a Redux user slice, dispatch(setUser({...user, profileId: res.profileId}))
         }
+        setData(form);
+        successNotification("Registered Successfully", "Redirecting to login page...");
+        setTimeout(()=>{
+            navigate("/login");
+            setLoading(false);
+        }, 4000)
+    }).catch((err) => {
+        // ...existing error handling...
+    });
+}
+// ...existing code...
     }
     return <><LoadingOverlay
     visible={loading}

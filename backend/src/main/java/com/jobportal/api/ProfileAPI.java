@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jobportal.dto.ProfileDTO;
 import com.jobportal.exception.JobPortalException;
 import com.jobportal.service.ProfileService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 @RestController

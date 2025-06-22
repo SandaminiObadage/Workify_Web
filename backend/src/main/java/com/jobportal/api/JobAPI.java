@@ -23,6 +23,7 @@ import com.jobportal.exception.JobPortalException;
 import com.jobportal.service.JobService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @CrossOrigin

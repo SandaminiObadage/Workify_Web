@@ -9,6 +9,7 @@ import { applyJob } from "../../Services/JobService";
 import { errorNotification, successNotification } from "../../Services/NotificationService";
 
 const ApplicationForm = () => {
+    
     const navigate = useNavigate();
     const {id}=useParams();
     const user = useSelector((state: any) => state.user);

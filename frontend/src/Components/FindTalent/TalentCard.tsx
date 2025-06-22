@@ -8,6 +8,7 @@ import { getProfile } from "../../Services/ProfileService";
 import { formatInterviewTime, openPDF } from "../../Services/Utilities";
 import { changeAppStatus } from "../../Services/JobService";
 import { errorNotification, successNotification } from "../../Services/NotificationService";
+import { getUser } from "../../Services/UserService"; // Make sure this exists
 
 const TalentCard = (props: any) => {
     const {id}=useParams();
@@ -17,6 +18,8 @@ const TalentCard = (props: any) => {
     const [date, setDate] = useState<Date|null>(null);
     const [time, setTime] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
+
+    
     const handleOffer = (status:string) => {
         let interview:any={id, applicantId:profile?.id, applicationStatus:status};
         if(status=="INTERVIEWING"){
@@ -36,12 +39,53 @@ const TalentCard = (props: any) => {
         });
     
     }
-    useEffect(()=>{
-        if(props.applicantId)getProfile(props.applicantId).then((res)=>{
-            setProfile(res);
-        }).catch((err)=>console.log(err))
-        else setProfile(props);
-    }, [props])
+    // useEffect(()=>{
+    //     if(props.applicantId)getProfile(props.applicantId).then((res)=>{
+    //         setProfile(res);
+    //     }).catch((err)=>console.log(err))
+    //     else setProfile(props);
+    // }, [props])
+
+   useEffect(() => {
+    if (props.applicantId) {
+         console.log("Fetching user with id:", props.applicantId);
+        getUser(props.applicantId).then((user: any) => { // <-- add ': any' here
+             console.log("Fetched user:", user);
+            if (user.profileId) {
+                console.log("Fetching profile with id:", user.profileId);
+                getProfile(user.profileId).then(setProfile).catch((err) => {
+                    console.log("Profile fetch error:", err);
+                });
+            }
+             else {
+                console.log("No profileId on user!");
+            }
+        }).catch((err)=>{
+            console.log("User fetch error:", err);
+        });
+    } else if (props.id) {
+        getProfile(props.id).then(setProfile).catch(console.log);
+    } else {
+        setProfile(props);
+    }
+    
+}, [props]);
+
+// Loading state while fetching profile
+    if (props.applicantId && !profile) {
+        return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
+    }
+
+    // Loading state while fetching profile
+if (props.applicantId && profile === null) {
+    return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
+}
+
+// Fallback if profile not found after fetch
+if (props.applicantId && profile === undefined) {
+    return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Profile not found.</div>;
+}
+
     return <div data-aos="fade-up" className="p-4 rounded-xl bg-mine-shaft-900   hover:shadow-[0_0_5px_1px_yellow] !shadow-bright-sun-400  transition duration-300 ease-in-out w-96 bs-mx:w-[48%] md-mx:w-full flex flex-col gap-3">
         <div className="flex justify-between">
             <div className="flex gap-2 items-center">
@@ -49,8 +93,9 @@ const TalentCard = (props: any) => {
                     <Avatar className="rounded-full" size="lg" src={profile?.picture?`data:image/jpeg;base64,${profile?.picture}`:'/Avatar.png'} />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="font-semibold text-lg">{props?.name}</div>
-                    <div className="text-sm text-mine-shaft-300">{profile?.jobTitle} &bull; {profile?.company}</div>
+                    <div className="font-semibold text-lg">{profile?.name || props?.name}</div>
+                    <div className="text-sm text-mine-shaft-300">{profile?.jobTitle || ""} &bull; {profile?.company || ""}</div>
+                    {/* <div className="text-sm text-mine-shaft-300">{profile?.jobTitle} &bull; {profile?.company}</div> */}
 
                 </div>
             </div>

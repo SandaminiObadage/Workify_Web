@@ -29,5 +29,12 @@ const resetPassword=async (email:string, password:string)=>{
         .catch((error:any) =>{throw error;});
 }
 
+const getUser = async (id: any) => {
+    return axiosInstance.get(`/users/get/${id}`)
+        .then((result: any) => result.data)
+        .catch((error: any) => { throw error; });
+};
 
-export {registerUser, loginUser, sendOtp, verifyOtp, resetPassword};
+
+
+export {registerUser, loginUser, sendOtp, verifyOtp, resetPassword,getUser};

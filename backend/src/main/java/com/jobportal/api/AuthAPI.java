@@ -17,6 +17,7 @@ import com.jobportal.exception.JobPortalException;
 import com.jobportal.jwt.AuthenticationRequest;
 import com.jobportal.jwt.AuthenticationResponse;
 import com.jobportal.jwt.JwtHelper;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @CrossOrigin
