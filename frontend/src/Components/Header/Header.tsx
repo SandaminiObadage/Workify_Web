@@ -4,7 +4,7 @@ import NavLinks from "./NavLinks";
 import ProfileMenu from "./ProfileMenu";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { getProfile } from "../../Services/ProfileService";
 import { setProfile } from "../../Slices/ProfileSlice";
 import NotiMenu from "./NotiMenu";
@@ -14,14 +14,6 @@ import { setupResponseInterceptor } from "../../Interceptor/AxiosInterceptor";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { hideOverlay, showOverlay } from "../../Slices/OverlaySlice";
 
-const links = [
-    { name: "Find Jobs", url: "find-jobs" },
-    { name: "Find Talent", url: "find-talent" },
-    { name: "Post Job", url: "post-job/0" },
-    { name: "Posted Jobs", url: "posted-jobs/0" },
-    { name: "Job History", url: "job-history" }
-]
-
 const Header = () => {
     const [opened, { open, close }] = useDisclosure(false);
     const dispatch = useDispatch();
@@ -29,6 +21,35 @@ const Header = () => {
     const token = useSelector((state: any) => state.jwt);
     const location = useLocation();
     const navigate = useNavigate();
+    
+    // Dynamic links based on account type
+    const links = useMemo(() => {
+        const accountType = user?.accountType || localStorage.getItem("accountType");
+        
+        if (accountType === "ADMIN") {
+            return [
+                { name: "Dashboard", url: "admin" },
+                { name: "Find Jobs", url: "find-jobs" },
+                { name: "Find Talent", url: "find-talent" },
+            ];
+        } else if (accountType === "EMPLOYER") {
+            return [
+                { name: "Find Talent", url: "find-talent" },
+                { name: "Post Job", url: "post-job/0" },
+                { name: "Posted Jobs", url: "posted-jobs/0" },
+            ];
+        } else if (accountType === "APPLICANT") {
+            return [
+                { name: "Find Jobs", url: "find-jobs" },
+                { name: "Job History", url: "job-history" },
+            ];
+        }
+        return [
+            { name: "Find Jobs", url: "find-jobs" },
+            { name: "Find Talent", url: "find-talent" },
+        ];
+    }, [user]);
+    
     useEffect(() => {
         setupResponseInterceptor(navigate, dispatch);
 
@@ -57,7 +78,7 @@ const Header = () => {
             <IconAnchor className="h-8 w-8" stroke={2.5} />
             <div className=" xs-mx:hidden text-3xl font-semibold">Workify</div>
         </div>
-        {NavLinks()}
+        <NavLinks />
         <div className="flex gap-3 items-center">
 
             {user ? <ProfileMenu /> : <Link to="/login" className="text-mine-shaft-200 hover:text-bright-sun-400 "><Button color="brightSun.4" variant="subtle">Login</Button></Link>}
