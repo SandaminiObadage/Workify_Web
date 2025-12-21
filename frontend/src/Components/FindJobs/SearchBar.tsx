@@ -42,7 +42,7 @@ const SearchBar = () => {
             <div className="w-1/5 lg-mx:w-1/4 lg-mx:mt-7 bs-mx:w-[30%] xs-mx:mb-1 sm-mx:w-[48%] text-sm text-mine-shaft-300 [&_.mantine-Slider-label]:!translate-y-10 xs-mx:w-full">
                 <div className="flex mb-1 justify-between">
                     <div>Salary</div>
-                    <div>&#8377;{value[0]} LPA - &#8377;{value[1]} LPA</div>
+                    <div>&#8377;{value[0]} lkr - &#8377;{value[1]} lkr</div>
                 </div>
                 <RangeSlider color="brightSun.4" size="xs" value={value} onChange={setValue} onChangeEnd={handleChange} />
             </div>

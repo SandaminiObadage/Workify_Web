@@ -79,7 +79,6 @@ def recommend():
         if isinstance(s, str):
             skills.extend([x.strip() for x in s.replace('\n', ',').split(',') if x.strip()])
 
-
     profile_text = f"{title} {' '.join(skills)} {profile.get('about', '')}"
     
     # Vectorize the profile text

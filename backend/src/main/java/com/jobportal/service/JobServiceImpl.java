@@ -155,6 +155,7 @@ public List<JobDTO> recommendJobs(Long profileId) throws JobPortalException {
     }
 
     Map<String, Object> request = new HashMap<>();
+    request.put("profileId", profileId);
     request.put("skills", profile.getSkills());
     request.put("about", profile.getAbout());
     request.put("experiences", experiences);
