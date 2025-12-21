@@ -61,7 +61,9 @@ public class JobServiceImpl implements JobService {
 	
 	@Override
 	public List<JobDTO> getAllJobs() throws JobPortalException {
-		return jobRepository.findAll().stream().map((x) -> x.toDTO()).toList();
+		return jobRepository.findAll().stream()
+			.filter(job -> job.getJobStatus() != JobStatus.HIDDEN && job.getJobStatus() != JobStatus.DELETED)
+			.map((x) -> x.toDTO()).toList();
 	}
 
 	@Override

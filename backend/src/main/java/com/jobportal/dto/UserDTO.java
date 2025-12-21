@@ -1,5 +1,7 @@
 package com.jobportal.dto;
 
+import java.time.LocalDateTime;
+
 import com.jobportal.entity.User;
 
 import jakarta.validation.constraints.Email;
@@ -28,9 +30,15 @@ public class UserDTO {
 
 	private AccountType accountType;
 	private Long profileId;
+	private AccountStatus accountStatus;
+	private LocalDateTime createdAt;
+	private LocalDateTime lastLogin;
+	private String lockedReason;
+	private Long lockedBy;
 
 	public User toEntity() {
-		return new User(this.id, this.name, this.email, this.password, this.accountType, this.profileId);
+		return new User(this.id, this.name, this.email, this.password, this.accountType, this.profileId,
+				this.accountStatus, this.createdAt, this.lastLogin, this.lockedReason, this.lockedBy);
 	}
 
 }

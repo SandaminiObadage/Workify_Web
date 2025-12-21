@@ -1,5 +1,5 @@
 package com.jobportal.dto;
 
 public enum JobStatus {
-	ACTIVE, CLOSED, DRAFT         
+	ACTIVE, CLOSED, DRAFT, HIDDEN, DELETED         
 }

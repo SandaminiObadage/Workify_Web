@@ -46,8 +46,19 @@ const Login = () => {
                 }, 4000)
             }).catch((err) => {
                 console.log(err);
-                    errorNotification("Login Failed", err.response.data.errorMessage);
-                    setLoading(false);
+                const errorMessage = err.response?.data?.errorMessage || "Login failed";
+                
+                // Check if account is locked or suspended
+                if (errorMessage.toLowerCase().includes("locked")) {
+                    errorNotification("Account Locked", errorMessage);
+                } else if (errorMessage.toLowerCase().includes("suspended")) {
+                    errorNotification("Account Suspended", errorMessage);
+                } else if (errorMessage.toLowerCase().includes("incorrect")) {
+                    errorNotification("Login Failed", "Incorrect email or password");
+                } else {
+                    errorNotification("Login Failed", errorMessage);
+                }
+                setLoading(false);
             });
 
         }

@@ -28,6 +28,7 @@ public class Utilities {
 		update.inc("seq", 1);
 		FindAndModifyOptions options = new FindAndModifyOptions();
 		options.returnNew(true);
+		options.upsert(true); // Auto-create if not exists
 		Sequence seqId = mongoOperation.findAndModify(query, update, options, Sequence.class);
 		if (seqId == null) {
 			throw new JobPortalException("Unable to get sequence id for key : " + key);

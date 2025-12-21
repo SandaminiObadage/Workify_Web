@@ -21,6 +21,7 @@ import PublicRoute from '../Services/PublicRoute';
 import Unauthorized from './UnauthroizedPage';
 import NotFoundPage from './NotFoundPage';
 import { LoadingOverlay } from '@mantine/core';
+import AdminPage from './AdminPage';
 
 const AppRoutes = () => {
   const overlay = useSelector((state: any) => state.overlay);
@@ -52,6 +53,7 @@ const AppRoutes = () => {
         <Route path='/signup' element={<PublicRoute><SignUpPage /></PublicRoute>} />
         <Route path='/login' element={<PublicRoute><SignUpPage /></PublicRoute>} />
         <Route path='/profile' element={<ProtectedRoute allowedRoles={['APPLICANT', 'ADMIN', 'EMPLOYER']}><ProfilePage /></ProtectedRoute>} />
+        <Route path='/admin' element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminPage /></ProtectedRoute>} />
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
       <Footer />

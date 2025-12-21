@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.jobportal.dto.AccountStatus;
 import com.jobportal.dto.LoginDTO;
 import com.jobportal.dto.NotificationDTO;
 import com.jobportal.dto.ResponseDTO;
@@ -57,7 +58,9 @@ public class UserServiceImpl implements UserService {
 			throw new JobPortalException("USER_FOUND");
 		userDTO.setId(Utilities.getNextSequenceId("users"));
 		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-		userDTO.setProfileId(profileService.createProfile(userDTO));		
+		userDTO.setProfileId(profileService.createProfile(userDTO));
+		userDTO.setAccountStatus(AccountStatus.ACTIVE);
+		userDTO.setCreatedAt(LocalDateTime.now());
 		User user = userRepository.save(userDTO.toEntity());
 		user.setPassword(null);
 		return user.toDTO();
@@ -69,6 +72,22 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new JobPortalException("USER_NOT_FOUND"));
 		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
 			throw new JobPortalException("INVALID_CREDENTIALS");
+		
+		// Check if account is locked
+		if (user.getAccountStatus() == AccountStatus.LOCKED) {
+			String reason = user.getLockedReason() != null ? user.getLockedReason() : "Policy violation";
+			throw new JobPortalException("ACCOUNT_LOCKED:" + reason);
+		}
+		
+		// Check if account is suspended
+		if (user.getAccountStatus() == AccountStatus.SUSPENDED) {
+			throw new JobPortalException("ACCOUNT_SUSPENDED");
+		}
+		
+		// Update last login time
+		user.setLastLogin(LocalDateTime.now());
+		userRepository.save(user);
+		
 		user.setPassword(null);
 		return user.toDTO();
 	}
