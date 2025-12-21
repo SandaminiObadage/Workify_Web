@@ -1,3 +1,184 @@
+// import { Anchor, Avatar, Button, Divider, Modal, Text } from "@mantine/core";
+// import { DateInput, TimeInput } from "@mantine/dates";
+// import { useDisclosure } from "@mantine/hooks";
+// import { IconCalendarMonth, IconHeart, IconMapPin } from "@tabler/icons-react";
+// import { useEffect, useRef, useState } from "react";
+// import { Link, useParams } from "react-router-dom";
+// import { getProfile } from "../../Services/ProfileService";
+// import { formatInterviewTime, openPDF } from "../../Services/Utilities";
+// import { changeAppStatus } from "../../Services/JobService";
+// import { errorNotification, successNotification } from "../../Services/NotificationService";
+// import { getUser } from "../../Services/UserService"; // Make sure this exists
+
+// const TalentCard = (props: any) => {
+//     const {id}=useParams();
+//     const ref = useRef<HTMLInputElement>(null);
+//     const [opened, { open, close }] = useDisclosure(false);
+//     const [app, {open:openApp, close:closeApp}]=useDisclosure(false);
+//     const [date, setDate] = useState<Date|null>(null);
+//     const [time, setTime] = useState<any>(null);
+//     const [profile, setProfile] = useState<any>(null);
+
+    
+//     const handleOffer = (status:string) => {
+//         let interview:any={id, applicantId:profile?.id, applicationStatus:status};
+//         if(status=="INTERVIEWING"){
+//             const [hours, minutes] = time.split(':').map(Number);
+//             date?.setHours(hours);
+//             date?.setMinutes(minutes);
+//             interview={...interview, interviewTime:date}
+//         }
+//         changeAppStatus(interview).then((res) => {
+//             if(status=="INTERVIEWING")successNotification('Interview Scheduled',  'Interview has been scheduled successfully');
+//             else if(status=="OFFERED")successNotification('Offered',  'Offer has been sent successfully');
+//             else successNotification('Rejected',  'Offer has been rejected');
+//             window.location.reload();
+//         }).catch((err) => {
+//             console.log(err)
+//             errorNotification('Error', err.response.data.errorMessage);
+//         });
+    
+//     }
+//     // useEffect(()=>{
+//     //     if(props.applicantId)getProfile(props.applicantId).then((res)=>{
+//     //         setProfile(res);
+//     //     }).catch((err)=>console.log(err))
+//     //     else setProfile(props);
+//     // }, [props])
+
+//    useEffect(() => {
+//     if (props.applicantId) {
+//          console.log("Fetching user with id:", props.applicantId);
+//         getUser(props.applicantId).then((user: any) => { // <-- add ': any' here
+//              console.log("Fetched user:", user);
+//             if (user.profileId) {
+//                 console.log("Fetching profile with id:", user.profileId);
+//                 getProfile(user.profileId).then(setProfile).catch((err) => {
+//                     console.log("Profile fetch error:", err);
+//                 });
+//             }
+//              else {
+//                 console.log("No profileId on user!");
+//             }
+//         }).catch((err)=>{
+//             console.log("User fetch error:", err);
+//         });
+//     } else if (props.id) {
+//         getProfile(props.id).then(setProfile).catch(console.log);
+//     } else {
+//         setProfile(props);
+//     }
+    
+// }, [props]);
+
+// // Loading state while fetching profile
+//     if (props.applicantId && !profile) {
+//         return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
+//     }
+
+//     // Loading state while fetching profile
+// if (props.applicantId && profile === null) {
+//     return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
+// }
+
+// // Fallback if profile not found after fetch
+// if (props.applicantId && profile === undefined) {
+//     return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Profile not found.</div>;
+// }
+
+//     return <div data-aos="fade-up" className="p-4 rounded-xl bg-mine-shaft-900   hover:shadow-[0_0_5px_1px_yellow] !shadow-bright-sun-400  transition duration-300 ease-in-out w-96 bs-mx:w-[48%] md-mx:w-full flex flex-col gap-3">
+//         <div className="flex justify-between">
+//             <div className="flex gap-2 items-center">
+//                 <div className="p-2 bg-mine-shaft-800 rounded-full">
+//                     <Avatar className="rounded-full" size="lg" src={profile?.picture?`data:image/jpeg;base64,${profile?.picture}`:'/Avatar.png'} />
+//                 </div>
+//                 <div className="flex flex-col gap-1">
+//                     <div className="font-semibold text-lg">{profile?.name || props?.name}</div>
+//                     <div className="text-sm text-mine-shaft-300">{profile?.jobTitle || ""} &bull; {profile?.company || ""}</div>
+//                     {/* <div className="text-sm text-mine-shaft-300">{profile?.jobTitle} &bull; {profile?.company}</div> */}
+
+//                 </div>
+//             </div>
+//             <IconHeart className="cursor-pointer text-mine-shaft-300" stroke={1.5} />
+//         </div>
+//         <div className="flex gap-2 flex-wrap ">
+//             {
+//                 profile?.skills?.map((skill: any, index: any) => index<4 && <div key={index} className="p-2 py-1 bg-mine-shaft-800 text-bright-sun-400 rounded-lg text-xs">{skill}</div>)
+//             }
+//         </div>
+//         <div>
+//             <Text className="!text-xs text-justify !text-mine-shaft-300" lineClamp={3}>{profile?.about}
+//             </Text>
+//         </div>
+//         <Divider color="mineShaft.7" size="xs" />
+//         {
+//             props.invited ? <div className="flex gap-1 text-mine-shaft-200 text-sm items-center">
+//                 <IconCalendarMonth stroke={1.5} /> Interview: {formatInterviewTime(props.interviewTime)}
+//             </div> : <div className="flex justify-between">
+//                 <div className="font-medium text-mine-shaft-200">Exp: {profile?.totalExp?profile?.totalExp:1} Years</div>
+//                 <div className="text-xs flex gap-1 items-center text-mine-shaft-400">
+//                     <IconMapPin className="h-5 w-5" /> {profile?.location}
+//                 </div>
+//             </div>
+//         }
+//         <Divider color="mineShaft.7" size="xs" />
+//         <div className="flex [&>*]:w-1/2 [&>*]:p-1">
+//             {
+//                 !props.invited && <>
+//                     <Link to={`/talent-profile/${profile?.id}`}>
+//                         <Button color="brightSun.4" variant="outline" fullWidth>Profile</Button>
+//                     </Link>
+
+//                     <div>
+//                         {props.posted ? <Button color="brightSun.4" variant="light" onClick={open} rightSection={<IconCalendarMonth className="w-5 h-5" />} fullWidth>Schedule</Button> : <Button color="brightSun.4" variant="light" fullWidth>Message</Button>}
+//                     </div>
+//                 </>
+//             }{
+
+//                 props.invited && <>
+//                     <div>
+
+//                         <Button onClick={()=>handleOffer("OFFERED")} color="brightSun.4" variant="outline" fullWidth>Accept</Button>
+//                     </div>
+//                     <div>
+
+//                         <Button onClick={()=>handleOffer("REJECTED")} color="brightSun.4" variant="light" fullWidth>Reject</Button>
+//                     </div>
+//                 </>
+//             }
+//         </div>
+//             {(props.invited || props.posted) && <Button color="brightSun.4" variant="filled" onClick={openApp} autoContrast fullWidth>View Application</Button>}
+//         <Modal opened={opened} onClose={close} radius="lg" title="Schedule Interview" centered>
+//             <div className="flex flex-col gap-4">
+//                 <DateInput value={date} onChange={setDate} minDate={new Date()} label="Date" placeholder="Enter Date" />
+//                 <TimeInput label="Time" ref={ref} value={time}
+//       onChange={(event) => setTime(event.currentTarget.value)}  minTime="" onClick={() => ref.current?.showPicker()} />
+//                 <Button onClick={()=>handleOffer("INTERVIEWING")} color="brightSun.4" variant="light" fullWidth>Schedule</Button>
+//             </div>
+//         </Modal>
+//         <Modal opened={app} onClose={closeApp} radius="lg" title="Application" centered>
+//             <div className="flex flex-col gap-4">
+//                 <div >
+//                     Email: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer " href={`mailto:${props?.email}`}>{props?.email}</a>
+//                 </div>
+//                 <div >
+//                     Website: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer " target="_blank" href={props.website}>{props.website}</a>
+//                 </div>
+//                 <div >
+//                     Resume: &emsp;<span className="text-bright-sun-400 hover:underline cursor-pointer" onClick={()=>openPDF(props.resume)}>{props.name}</span>
+                    
+//                 </div>
+//                 <div  >
+//                     Cover Letter: &emsp;
+//                     <div className="text-wrap">{props.coverLetter} </div>
+//                 </div>
+//             </div>
+//         </Modal>
+//     </div>
+// }
+// export default TalentCard;
+
+
 import { Anchor, Avatar, Button, Divider, Modal, Text } from "@mantine/core";
 import { DateInput, TimeInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
@@ -8,7 +189,7 @@ import { getProfile } from "../../Services/ProfileService";
 import { formatInterviewTime, openPDF } from "../../Services/Utilities";
 import { changeAppStatus } from "../../Services/JobService";
 import { errorNotification, successNotification } from "../../Services/NotificationService";
-import { getUser } from "../../Services/UserService"; // Make sure this exists
+import { getUser } from "../../Services/UserService";
 
 const TalentCard = (props: any) => {
     const {id}=useParams();
@@ -18,10 +199,11 @@ const TalentCard = (props: any) => {
     const [date, setDate] = useState<Date|null>(null);
     const [time, setTime] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
-    
     const handleOffer = (status:string) => {
-        let interview:any={id, applicantId:profile?.id, applicationStatus:status};
+        let interview:any={id, applicantId:profile?.userId || profile?.id, applicationStatus:status};
         if(status=="INTERVIEWING"){
             const [hours, minutes] = time.split(':').map(Number);
             date?.setHours(hours);
@@ -37,77 +219,151 @@ const TalentCard = (props: any) => {
             console.log(err)
             errorNotification('Error', err.response.data.errorMessage);
         });
-    
-    }
-    // useEffect(()=>{
-    //     if(props.applicantId)getProfile(props.applicantId).then((res)=>{
-    //         setProfile(res);
-    //     }).catch((err)=>console.log(err))
-    //     else setProfile(props);
-    // }, [props])
-
-   useEffect(() => {
-    if (props.applicantId) {
-         console.log("Fetching user with id:", props.applicantId);
-        getUser(props.applicantId).then((user: any) => { // <-- add ': any' here
-             console.log("Fetched user:", user);
-            if (user.profileId) {
-                console.log("Fetching profile with id:", user.profileId);
-                getProfile(user.profileId).then(setProfile).catch((err) => {
-                    console.log("Profile fetch error:", err);
-                });
-            }
-             else {
-                console.log("No profileId on user!");
-            }
-        }).catch((err)=>{
-            console.log("User fetch error:", err);
-        });
-    } else if (props.id) {
-        getProfile(props.id).then(setProfile).catch(console.log);
-    } else {
-        setProfile(props);
-    }
-    
-}, [props]);
-
-// Loading state while fetching profile
-    if (props.applicantId && !profile) {
-        return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
     }
 
-    // Loading state while fetching profile
-if (props.applicantId && profile === null) {
-    return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Loading...</div>;
-}
+    useEffect(() => {
+        // If we already have complete profile data (from PostedJobDesc), use it directly
+        if (props.name && props.email && props.skills && !props.applicantId) {
+            setProfile(props);
+            setLoading(false);
+            setError(false);
+            return;
+        }
 
-// Fallback if profile not found after fetch
-if (props.applicantId && profile === undefined) {
-    return <div className="p-4 rounded-xl bg-mine-shaft-900 w-96">Profile not found.</div>;
-}
+        // If we have complete data with applicantId (merged from PostedJobDesc)
+        if (props.applicantId && props.name && props.email) {
+            setProfile(props);
+            setLoading(false);
+            setError(false);
+            return;
+        }
+        
+        // If we have applicantId but incomplete data, we need to fetch
+        if (props.applicantId) {
+            setLoading(true);
+            setError(false);
+            console.log("Fetching user with id:", props.applicantId);
+            
+            getUser(props.applicantId).then((user: any) => {
+                console.log("Fetched user:", user);
+                if (user.profileId) {
+                    console.log("Fetching profile with id:", user.profileId);
+                    getProfile(user.profileId).then((profileData) => {
+                        // Merge profile data with applicant data (props)
+                        setProfile({ 
+                            ...profileData, 
+                            ...props, // Keep applicant-specific data like email, applicationStatus, etc.
+                            email: user.email || props.email, // Prefer user email
+                            userId: props.applicantId, // Keep track of user ID
+                            id: profileData.id || user.profileId // Ensure we have the profile ID
+                        });
+                        setLoading(false);
+                        setError(false);
+                    }).catch((err) => {
+                        console.log("Profile fetch error:", err);
+                        // Fallback to user data merged with props
+                        setProfile({ 
+                            ...user, 
+                            ...props,
+                            userId: props.applicantId,
+                            skills: props.skills || [] // Fallback for skills
+                        });
+                        setLoading(false);
+                        setError(false);
+                    });
+                } else {
+                    console.log("No profileId on user!");
+                    // Use user data without profile, merged with props
+                    setProfile({ 
+                        ...user, 
+                        ...props,
+                        userId: props.applicantId,
+                        skills: props.skills || [] // Fallback for skills
+                    });
+                    setLoading(false);
+                    setError(false);
+                }
+            }).catch((err) => {
+                console.log("User fetch error:", err);
+                // Fallback to props only
+                setProfile(props);
+                setLoading(false);
+                setError(true);
+            });
+        } else if (props.id) {
+            // Direct profile fetch for existing functionality
+            setLoading(true);
+            setError(false);
+            getProfile(props.id).then((profileData) => {
+                setProfile(profileData);
+                setLoading(false);
+                setError(false);
+            }).catch((err) => {
+                console.log("Direct profile fetch error:", err);
+                setProfile(props);
+                setLoading(false);
+                setError(true);
+            });
+        } else {
+            // Use props directly if no IDs to fetch
+            setProfile(props);
+            setLoading(false);
+            setError(false);
+        }
+    }, [props.applicantId, props.id]); // Only depend on these specific props to prevent unnecessary re-renders
 
-    return <div data-aos="fade-up" className="p-4 rounded-xl bg-mine-shaft-900   hover:shadow-[0_0_5px_1px_yellow] !shadow-bright-sun-400  transition duration-300 ease-in-out w-96 bs-mx:w-[48%] md-mx:w-full flex flex-col gap-3">
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="p-4 rounded-xl bg-mine-shaft-900 w-96 bs-mx:w-[48%] md-mx:w-full flex items-center justify-center min-h-[200px]">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bright-sun-400 mx-auto mb-2"></div>
+                    <div className="text-mine-shaft-300">Loading profile...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state if we have an ID but failed to fetch
+    if (error && (props.applicantId || props.id)) {
+        return (
+            <div className="p-4 rounded-xl bg-mine-shaft-900 w-96 bs-mx:w-[48%] md-mx:w-full flex items-center justify-center min-h-[200px]">
+                <div className="text-center">
+                    <div className="text-red-400 mb-2">⚠️</div>
+                    <div className="text-red-400">Profile not found</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Don't render if we don't have profile data
+    if (!profile) {
+        return null;
+    }
+
+    return <div data-aos="fade-up" className="p-4 rounded-xl bg-mine-shaft-900 hover:shadow-[0_0_5px_1px_yellow] !shadow-bright-sun-400 transition duration-300 ease-in-out w-96 bs-mx:w-[48%] md-mx:w-full flex flex-col gap-3">
         <div className="flex justify-between">
             <div className="flex gap-2 items-center">
                 <div className="p-2 bg-mine-shaft-800 rounded-full">
                     <Avatar className="rounded-full" size="lg" src={profile?.picture?`data:image/jpeg;base64,${profile?.picture}`:'/Avatar.png'} />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="font-semibold text-lg">{profile?.name || props?.name}</div>
-                    <div className="text-sm text-mine-shaft-300">{profile?.jobTitle || ""} &bull; {profile?.company || ""}</div>
-                    {/* <div className="text-sm text-mine-shaft-300">{profile?.jobTitle} &bull; {profile?.company}</div> */}
-
+                    <div className="font-semibold text-lg">{profile?.name || "Unknown"}</div>
+                    <div className="text-sm text-mine-shaft-300">{profile?.jobTitle || ""} {profile?.jobTitle && profile?.company && "•"} {profile?.company || ""}</div>
                 </div>
             </div>
             <IconHeart className="cursor-pointer text-mine-shaft-300" stroke={1.5} />
         </div>
-        <div className="flex gap-2 flex-wrap ">
+        <div className="flex gap-2 flex-wrap">
             {
-                profile?.skills?.map((skill: any, index: any) => index<4 && <div key={index} className="p-2 py-1 bg-mine-shaft-800 text-bright-sun-400 rounded-lg text-xs">{skill}</div>)
+                profile?.skills?.slice(0, 4)?.map((skill: any, index: any) => (
+                    <div key={index} className="p-2 py-1 bg-mine-shaft-800 text-bright-sun-400 rounded-lg text-xs">{skill}</div>
+                ))
             }
         </div>
         <div>
-            <Text className="!text-xs text-justify !text-mine-shaft-300" lineClamp={3}>{profile?.about}
+            <Text className="!text-xs text-justify !text-mine-shaft-300" lineClamp={3}>
+                {profile?.about || "No description available."}
             </Text>
         </div>
         <Divider color="mineShaft.7" size="xs" />
@@ -115,9 +371,9 @@ if (props.applicantId && profile === undefined) {
             props.invited ? <div className="flex gap-1 text-mine-shaft-200 text-sm items-center">
                 <IconCalendarMonth stroke={1.5} /> Interview: {formatInterviewTime(props.interviewTime)}
             </div> : <div className="flex justify-between">
-                <div className="font-medium text-mine-shaft-200">Exp: {profile?.totalExp?profile?.totalExp:1} Years</div>
+                <div className="font-medium text-mine-shaft-200">Exp: {profile?.totalExp || 1} Years</div>
                 <div className="text-xs flex gap-1 items-center text-mine-shaft-400">
-                    <IconMapPin className="h-5 w-5" /> {profile?.location}
+                    <IconMapPin className="h-5 w-5" /> {profile?.location || "Not specified"}
                 </div>
             </div>
         }
@@ -133,44 +389,43 @@ if (props.applicantId && profile === undefined) {
                         {props.posted ? <Button color="brightSun.4" variant="light" onClick={open} rightSection={<IconCalendarMonth className="w-5 h-5" />} fullWidth>Schedule</Button> : <Button color="brightSun.4" variant="light" fullWidth>Message</Button>}
                     </div>
                 </>
-            }{
-
+            }
+            {
                 props.invited && <>
                     <div>
-
                         <Button onClick={()=>handleOffer("OFFERED")} color="brightSun.4" variant="outline" fullWidth>Accept</Button>
                     </div>
                     <div>
-
                         <Button onClick={()=>handleOffer("REJECTED")} color="brightSun.4" variant="light" fullWidth>Reject</Button>
                     </div>
                 </>
             }
         </div>
-            {(props.invited || props.posted) && <Button color="brightSun.4" variant="filled" onClick={openApp} autoContrast fullWidth>View Application</Button>}
+        {(props.invited || props.posted) && <Button color="brightSun.4" variant="filled" onClick={openApp} autoContrast fullWidth>View Application</Button>}
+        
         <Modal opened={opened} onClose={close} radius="lg" title="Schedule Interview" centered>
             <div className="flex flex-col gap-4">
                 <DateInput value={date} onChange={setDate} minDate={new Date()} label="Date" placeholder="Enter Date" />
                 <TimeInput label="Time" ref={ref} value={time}
-      onChange={(event) => setTime(event.currentTarget.value)}  minTime="" onClick={() => ref.current?.showPicker()} />
+                    onChange={(event) => setTime(event.currentTarget.value)} minTime="" onClick={() => ref.current?.showPicker()} />
                 <Button onClick={()=>handleOffer("INTERVIEWING")} color="brightSun.4" variant="light" fullWidth>Schedule</Button>
             </div>
         </Modal>
+        
         <Modal opened={app} onClose={closeApp} radius="lg" title="Application" centered>
             <div className="flex flex-col gap-4">
-                <div >
-                    Email: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer " href={`mailto:${props?.email}`}>{props?.email}</a>
+                <div>
+                    Email: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer" href={`mailto:${profile?.email || props?.email}`}>{profile?.email || props?.email}</a>
                 </div>
-                <div >
-                    Website: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer " target="_blank" href={props.website}>{props.website}</a>
+                <div>
+                    Website: &emsp;<a className="text-bright-sun-400 hover:underline cursor-pointer" target="_blank" href={props.website}>{props.website}</a>
                 </div>
-                <div >
+                <div>
                     Resume: &emsp;<span className="text-bright-sun-400 hover:underline cursor-pointer" onClick={()=>openPDF(props.resume)}>{props.name}</span>
-                    
                 </div>
-                <div  >
+                <div>
                     Cover Letter: &emsp;
-                    <div className="text-wrap">{props.coverLetter} </div>
+                    <div className="text-wrap">{props.coverLetter}</div>
                 </div>
             </div>
         </Modal>
